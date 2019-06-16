@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 
 let settings = {
-  myQuery: 'meat & bread',
+  myQuery: 'lunch',
   lucky: false,
   matchedDistance: '',
   matchedPrice: '',
@@ -164,6 +164,7 @@ const formatResponse = choices => {
 
   return {
     text: `What about ${settings.lucky && settings.lucky !== 'lunch' ? settings.lucky : 'these'}:`,
+    response_type: 'in_channel',
     attachments: getRandomPicks(pickAmount, choices).map(pick => formatRestaurant(choices, pick))
   }
 };
@@ -214,8 +215,10 @@ exports.getPlace = (req, res) => {
   fetch(url).then(e => e.json()).then(({ results }) =>
     res ? returnRequest(results) : logRequest(results));
 
-  const returnRequest = results =>
+  const returnRequest = results => {
+    res.setHeader('content-type', 'application/json');
     res.status(200).send(JSON.stringify(formatResponse(results)));
+  };
 
   const logRequest = results => {
     console.log(results);
